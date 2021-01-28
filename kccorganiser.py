@@ -75,7 +75,7 @@ def mainChapterSorting(): # sorts chapters into volumes
             destination = root / ("Volume " + str(volumeCurrent + volume)) / ("Chapter " + str(chapterCurrent + chapter))
             try:
                 shutil.move(source, destination)
-            except OSError:
+            except OSError: 
                 print("\nFolder not found. Chapter number was probably wrong.")
                 exiter()
         chapterCurrent = chapterEnd + 1
@@ -111,7 +111,7 @@ def conversion():
     Path.rename((base / oldFile), (base / newFile))
     print("\n\'" + oldFile + "\' was created and renamed to \'" + newFile + "\' in " + str(round(time.time() - timeStart, 2)) + " seconds!")
     print("\'" + newFile + "\' is located at \'" + str(base) + "\' .")
-    toDelete = input("\nDo you want to remove the source directory \'" + str(root) + "\' (Y/N): ")
+    toDelete = input("\nDo you want to remove the source directory \'" + str(root) + "\' (Y/N) (Default = Y): ")
     timeStart = time.time()
     if (toDelete == "") or (toDelete == "y") or (toDelete == "yes") or (toDelete == "Y") or (toDelete == "Yes") or (toDelete == "YES"):
         shutil.rmtree(root) # recursively delete source folder
@@ -151,11 +151,21 @@ if (firstOption == "") or (firstOption == "1") or (firstOption == "one") or (fir
                 conversion()
             elif (option == "n") or (option == "no") or (option == "N") or (option == "No") or (option == "NO"):
                 print("\nNothing has been changed.")
+    else:
+        option = input("\nDo you want to archive the source directory \'" + str(root) + "\' into a .zip file and rename the extension to .cbz for Kindle Comic Converter (KCC)? (Y/N) Default = Y: " )
+        if (option == "") or (option == "y") or (option == "yes") or (option == "Y") or (option == "Yes") or (option == "YES"):
+            conversion()
+        elif (option == "n") or (option == "no") or (option == "N") or (option == "No") or (option == "NO"):
+            option = input("\nDo you want to archive the source directory \'" + str(root) + "\' into a .zip file and rename the extension to .cbz for Kindle Comic Converter (KCC)? (Y/N) Default = Y: " )
+            if (option == "") or (option == "y") or (option == "yes") or (option == "Y") or (option == "Yes") or (option == "YES"):
+                conversion()
+            elif (option == "n") or (option == "no") or (option == "N") or (option == "No") or (option == "NO"):
+                print("\nNothing has been changed.")
 
 elif (firstOption == "2") or (firstOption == "two") or (firstOption == "Two") or (firstOption == "TWO"): # main chapter sorting
     print() # runs through sorting options and archiving/renaming
     mainChapterSorting()
-    option = input("\nAre there any side chapters to sort? (Y/N) Default = N: ")
+    option = input("\nAre there any side chapters to sort? (Y/N) (Default = N): ")
     if (option == "y") or (option == "yes") or (option == "Y") or (option == "Yes") or (option == "YES"):
         sideChapterSorting()
         option = input("\nDo you want to archive the source directory \'" + str(root) + "\' into a .zip file and rename the extension to .cbz for Kindle Comic Converter (KCC)? (Y/N) Default = Y: " )
