@@ -1,10 +1,11 @@
 # This is a script to sort downloadeded comic/manga main/side chapters into volumes (semi-manually) and archive into .zip format/rename to .cbz extension for use in Kindle Comic Converter.
 # There are some limitations with detecting some chapter formats; not able to sort chapters if they are in the wrong format, ie. Chapter 29, Chapter 30...
-# A function to clean up the chapter names is provided and sort out names like, 'Chapter 3 Vol2' or 'Z= 3', however, it won't recognise chapters if they have numbers before the chapter number, ie. 'S2 - Chapter 4'.
+# A function to clean up the chapter names is provided and sort out names like`~`, 'Chapter 3 Vol2' or 'Z= 3', however, it won't recognise chapters if they have numbers before the chapter number, ie. 'S2 - Chapter 4'.
 # You would require a separate script to remove those extra details pertaining to your case of folders.
 
 import shutil, time
 from pathlib import Path
+from sys import platform
 
 def exiter():
     try:
@@ -27,8 +28,11 @@ def cleanUp(): # cleans up chapter names into usable format
                     break
                     folderName = " ".join(folderName.split(" ")[:2])
                 elif char.isdigit(): # takes chapter number from numbers in folder name
-                    numbers.append(char)
-                     # does not work if there are numbers before chapter number ie. S2..
+                    numbers.append(char) # does not work if there are numbers before chapter number ie. S2..
+                     
+            while numbers[0] == "0":
+                numbers.pop(0) # removes 0's before actual chapter number
+                
             
         if file.is_dir():
             newFolderName = "Chapter " + "".join(numbers)
@@ -85,6 +89,10 @@ def sideChapterSorting(): # sorts side chapters into volumes
     timeStart = time.time()
     source = list()
     destination = list()
+    if platform == "win32": # FIX FOR WINDOWS VS UNIX PATHS SEPARATOR
+        sep = "\\\\"
+    else:
+        sep = "/"
     for file in root.iterdir(): # finds all files in root directory
         if (file.suffix != "") and (file.is_dir()): # filters by inclusion of decimal point and being a folder
             childName = file.name # only the name of the side chapter is pulled and is the source path
@@ -92,7 +100,7 @@ def sideChapterSorting(): # sorts side chapters into volumes
         
             parentName = childName.split(".")[0] # takes the first part of side chapter as the main chapter to find
             for parent in root.glob("*/" + parentName):
-                volume = str(parent).split("/")[-2] # volume to put side chapter in
+                volume = str(parent).split(sep)[-2]# volume to put side chapter in ///// tested for mac for now..
                 path = root / volume / childName # destination path
                 destination.append(path)
 
@@ -111,7 +119,7 @@ def conversion():
     Path.rename((base / oldFile), (base / newFile))
     print("\n\'" + oldFile + "\' was created and renamed to \'" + newFile + "\' in " + str(round(time.time() - timeStart, 2)) + " seconds!")
     print("\'" + newFile + "\' is located at \'" + str(base) + "\' .")
-    toDelete = input("\nDo you want to remove the source directory \'" + str(root) + "\' (Y/N) (Default = Y): ")
+    toDelete = input("\nDo you want to remove the source directory \'" + str(root) + "\'? (Y/N) (Default = Y): ")
     timeStart = time.time()
     if (toDelete == "") or (toDelete == "y") or (toDelete == "yes") or (toDelete == "Y") or (toDelete == "Yes") or (toDelete == "YES"):
         shutil.rmtree(root) # recursively delete source folder
